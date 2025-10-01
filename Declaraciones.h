@@ -32,7 +32,30 @@ string encodeMethod2(const string &bits, int n);
 
 
 
+//----- PROGRAMA DECODIFICADOR CON CHAR ---------------------------------------
 
+
+void byteToBits_dec(unsigned char byte, char *bitArray);
+
+unsigned char bitsToByte_dec(const char *bitArray);
+
+void metodo1_decodificar(const char *entradaBits, char *salidaBits, int totalBits, int n);
+
+void metodo2_decodificar(const char *entradaBits, char *salidaBits, int totalBits, int n);
+
+
+
+//----- PROGRAMA DECODIFICADOR CON STRING ---------------------------------------
+
+void convertirByteABits_string(unsigned char byte, string &bits);
+
+
+string decodificarMetodo1_string(const string &bits, int n);
+
+
+string decodificarMetodo2_string(const string &bits, int n);
+
+string convertirBitsABytes_string(const string &bits);
 
 
 
