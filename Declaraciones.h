@@ -1,0 +1,4 @@
+#ifndef DECLARACIONES_H
+#define DECLARACIONES_H
+
+#endif // DECLARACIONES_H
