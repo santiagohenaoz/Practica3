@@ -59,6 +59,14 @@ string convertirBitsABytes_string(const string &bits);
 
 
 
+//---------------APLICACION-----------------------------------------------------------------------
+
+
+string encodeMethod1_aplicacion(const string &bits, int n);
+
+string encodeMethod2_aplicacion(const string &bits, int n);
+
+
 
 
 

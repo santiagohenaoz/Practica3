@@ -330,3 +330,70 @@ string convertirBitsABytes_string(const string &bits) {
 }
 
 
+//---------------APLICACION-----------------------------------------------------------------------
+
+
+string encodeMethod1_aplicacion(const string &bits, int n) {
+    int totalBits = (int)bits.size();
+    int bloques = totalBits / n;
+    if (bloques == 0) return string();
+
+    string out;
+    out.resize(bloques * n);
+
+    for (int b = 0; b < bloques; ++b) {
+        int startCur = b * n;
+        if (b == 0) {
+            // primer bloque: invertir todos
+            for (int i = 0; i < n; ++i)
+                out[startCur + i] = (bits[startCur + i] == '0') ? '1' : '0';
+            continue;
+        }
+
+        int startPrev = (b - 1) * n;
+        int unos = 0, ceros = 0;
+        for (int i = 0; i < n; ++i)
+            (bits[startPrev + i] == '1') ? ++unos : ++ceros;
+
+        if (unos == ceros) {
+            for (int i = 0; i < n; ++i)
+                out[startCur + i] = (bits[startCur + i] == '0') ? '1' : '0';
+        }
+        else if (ceros > unos) {
+            // invertir cada 2 bits -> posiciones impares
+            for (int i = 0; i < n; ++i) {
+                if (i % 2 == 1)
+                    out[startCur + i] = (bits[startCur + i] == '0') ? '1' : '0';
+                else
+                    out[startCur + i] = bits[startCur + i];
+            }
+        }
+        else { // unos > ceros
+            // invertir cada 3 bits -> posiciones 2,5,8,... (i%3==2)
+            for (int i = 0; i < n; ++i) {
+                if (i % 3 == 2)
+                    out[startCur + i] = (bits[startCur + i] == '0') ? '1' : '0';
+                else
+                    out[startCur + i] = bits[startCur + i];
+            }
+        }
+    }
+    return out;
+}
+
+
+
+string encodeMethod2_aplicacion(const string &bits, int n) {
+    int totalBits = (int)bits.size();
+    int bloques = totalBits / n;
+    string out;
+    out.resize(bloques * n);
+    for (int b = 0; b < bloques; ++b) {
+        int start = b * n;
+        if (n == 1) { out[start] = bits[start]; continue; }
+        out[start + 0] = bits[start + n - 1];
+        for (int i = 1; i < n; ++i)
+            out[start + i] = bits[start + i - 1];
+    }
+    return out;
+}
