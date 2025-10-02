@@ -62,9 +62,21 @@ string convertirBitsABytes_string(const string &bits);
 //---------------APLICACION-----------------------------------------------------------------------
 
 
-string encodeMethod1_aplicacion(const string &bits, int n);
+void convertirByteABits_aplicacion(unsigned char byte, string &bits);
 
-string encodeMethod2_aplicacion(const string &bits, int n);
+string convertirBitsABytes_aplicacion(const string &bits);
+
+string codificarMetodo1_string(const string &bits, int n);
+
+string decodificarMetodo1_aplicacion(const string &bits, int n);
+
+string codificarMetodo2_string(const string &bits, int n);
+
+string decodificarMetodo2_aplicacion(const string &bits, int n);
+
+string leerArchivoBinario(const string &ruta);
+
+void guardarArchivoBinario(const string &ruta, const string &data);
 
 
 

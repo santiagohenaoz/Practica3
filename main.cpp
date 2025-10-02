@@ -391,176 +391,20 @@ int main() {
 
 
 
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <string>
-#include <vector>
-#include <stdexcept>
-using namespace std;
 
-// ================== FUNCIONES DE CODIFICAR / DECODIFICAR ==================
-
-// Convierte un byte en bits (string)
-void convertirByteABits_aplicacion(unsigned char byte, string &bits) {
-    for (int i = 7; i >= 0; --i)
-        bits.push_back(((byte >> i) & 1) ? '1' : '0');
-}
-
-// Convierte bits en bytes (string)
-string convertirBitsABytes_aplicacion(const string &bits) {
-    int outBytes = bits.size() / 8;
-    string outBuffer;
-    outBuffer.reserve(outBytes);
-
-    for (int i = 0; i < outBytes; i++) {
-        unsigned char b = 0;
-        for (int j = 0; j < 8; j++) {
-            b = (b << 1) | (bits[i * 8 + j] - '0');
-        }
-        outBuffer.push_back(static_cast<char>(b));
-    }
-    return outBuffer;
-}
-
-// Codificar Método 1
-string codificarMetodo1_string(const string &bits, int n) {
-    int totalBits = (int)bits.size();
-    int bloques = totalBits / n;
-    if (bloques == 0) return string();
-
-    string out;
-    out.resize(bloques * n);
-
-    for (int b = 0; b < bloques; ++b) {
-        int startCur = b * n;
-        if (b == 0) {
-            for (int i = 0; i < n; ++i)
-                out[startCur + i] = (bits[startCur + i] == '0') ? '1' : '0';
-            continue;
-        }
-        int startPrev = (b - 1) * n;
-        int unos = 0, ceros = 0;
-        for (int i = 0; i < n; ++i)
-            (bits[startPrev + i] == '1') ? ++unos : ++ceros;
-
-        if (unos == ceros) {
-            for (int i = 0; i < n; ++i)
-                out[startCur + i] = (bits[startCur + i] == '0') ? '1' : '0';
-        } else if (ceros > unos) {
-            for (int i = 0; i < n; ++i)
-                if (i % 2 == 1) out[startCur + i] = (bits[startCur + i] == '0') ? '1' : '0';
-                else out[startCur + i] = bits[startCur + i];
-        } else {
-            for (int i = 0; i < n; ++i)
-                if (i % 3 == 2) out[startCur + i] = (bits[startCur + i] == '0') ? '1' : '0';
-                else out[startCur + i] = bits[startCur + i];
-        }
-    }
-    return out;
-}
-
-// Decodificar Método 1
-string decodificarMetodo1_aplicacion(const string &bits, int n) {
-    int totalBits = (int)bits.size();
-    int bloques = totalBits / n;
-    if (bloques == 0) return string();
-
-    string out;
-    out.resize(bloques * n);
-
-    for (int b = 0; b < bloques; ++b) {
-        int startCur = b * n;
-        if (b == 0) {
-            for (int i = 0; i < n; ++i)
-                out[startCur + i] = (bits[startCur + i] == '0') ? '1' : '0';
-            continue;
-        }
-        int startPrev = (b - 1) * n;
-        int unos = 0, ceros = 0;
-        for (int i = 0; i < n; ++i)
-            (out[startPrev + i] == '1') ? ++unos : ++ceros;
-
-        if (unos == ceros) {
-            for (int i = 0; i < n; ++i)
-                out[startCur + i] = (bits[startCur + i] == '0') ? '1' : '0';
-        } else if (ceros > unos) {
-            for (int i = 0; i < n; ++i)
-                if (i % 2 == 1) out[startCur + i] = (bits[startCur + i] == '0') ? '1' : '0';
-                else out[startCur + i] = bits[startCur + i];
-        } else {
-            for (int i = 0; i < n; ++i)
-                if (i % 3 == 2) out[startCur + i] = (bits[startCur + i] == '0') ? '1' : '0';
-                else out[startCur + i] = bits[startCur + i];
-        }
-    }
-    return out;
-}
-
-// Codificar Método 2 (rotación)
-string codificarMetodo2_string(const string &bits, int n) {
-    int totalBits = (int)bits.size();
-    int bloques = totalBits / n;
-    string out;
-    out.resize(bloques * n);
-
-    for (int b = 0; b < bloques; ++b) {
-        int start = b * n;
-        if (n == 1) { out[start] = bits[start]; continue; }
-        out[start + 0] = bits[start + n - 1];
-        for (int i = 1; i < n; ++i)
-            out[start + i] = bits[start + i - 1];
-    }
-    return out;
-}
-
-// Decodificar Método 2 (rotación inversa)
-string decodificarMetodo2_aplicacion(const string &bits, int n) {
-    int totalBits = (int)bits.size();
-    int bloques = totalBits / n;
-    string out;
-    out.resize(bloques * n);
-
-    for (int b = 0; b < bloques; ++b) {
-        int start = b * n;
-        if (n == 1) { out[start] = bits[start]; continue; }
-        for (int i = 0; i < n - 1; ++i)
-            out[start + i] = bits[start + i + 1];
-        out[start + n - 1] = bits[start];
-    }
-    return out;
-}
-
-// ================== SISTEMA DE ARCHIVOS ==================
-string leerArchivoBinario(const string &ruta) {
-    ifstream in(ruta, ios::binary);
-    if (!in) throw runtime_error("No se pudo abrir archivo: " + ruta);
-    in.seekg(0, ios::end);
-    streamsize sz = in.tellg();
-    in.seekg(0, ios::beg);
-    string buffer((size_t)sz, '\0');
-    in.read(&buffer[0], sz);
-    return buffer;
-}
-
-void guardarArchivoBinario(const string &ruta, const string &data) {
-    ofstream out(ruta, ios::binary);
-    if (!out) throw runtime_error("No se pudo guardar archivo: " + ruta);
-    out.write(data.data(), data.size());
-}
-
-// ================== PROGRAMA PRINCIPAL ==================
 int main() {
     try {
         cout << "Seleccione modo:\n1. Administrador\n2. Usuario\n> ";
         int modo; cin >> modo; cin.ignore();
 
-        int n;
+        int n, metodo;
         cout << "Ingrese semilla (n): ";
         cin >> n; cin.ignore();
+        cout << "Ingrese metodo de codificacion (1 o 2): ";
+        cin >> metodo; cin.ignore();
 
         if (modo == 1) {
-            // ===== ADMIN =====
+            // ADMINISTRADOR
             cout << "Ingrese clave de administrador: ";
             string claveInput;
             getline(cin, claveInput);
@@ -571,23 +415,24 @@ int main() {
             // Decodificar
             string sudoBits;
             for (unsigned char c : sudoCodificado) convertirByteABits_aplicacion(c, sudoBits);
-            string sudoDecod = decodificarMetodo1_aplicacion(sudoBits, n);
+
+            string sudoDecod;
+            if (metodo == 1) sudoDecod = decodificarMetodo1_aplicacion(sudoBits, n);
+            else sudoDecod = decodificarMetodo2_aplicacion(sudoBits, n);
+
             string sudoClave = convertirBitsABytes_aplicacion(sudoDecod);
 
             if (claveInput != sudoClave) {
-                cout << "Contraseña incorrecta.\n";
-                return 0;
+                cout << "Contrasena, clave o semilla incorrecta.\n";
+                main();
             }
             cout << "Acceso concedido como ADMIN.\n";
 
-            // Menu de administrador
-            int opcionAdmin;
-            cout << "\nDesea registrar un usuario?\n1. Si\n2. No (volver al inicio)\n> ";
-            cin >> opcionAdmin;
-            cin.ignore();
+            char opcion;
+            cout << "Desea registrar un usuario? (s/n): ";
+            cin >> opcion; cin.ignore();
 
-            if (opcionAdmin == 1) {
-                // Registrar usuario
+            if (opcion == 's' || opcion == 'S') {
                 cout << "Ingrese cedula: ";
                 string cedula; getline(cin, cedula);
                 cout << "Ingrese clave: ";
@@ -595,25 +440,34 @@ int main() {
                 cout << "Ingrese saldo inicial: ";
                 string saldo; getline(cin, saldo);
 
+                // IMPORTANTE: guardar semilla y metodo para este usuario
+                cout << "Ingrese semilla (n) para este usuario: ";
+                int nUser; cin >> nUser; cin.ignore();
+                cout << "Ingrese metodo de codificacion (1 o 2) para este usuario: ";
+                int metodoUser; cin >> metodoUser; cin.ignore();
+
                 // Codificar clave
                 string bits;
                 for (unsigned char c : clave) convertirByteABits_aplicacion(c, bits);
-                string claveCod = codificarMetodo1_string(bits, n);
+
+                string claveCod;
+                if (metodoUser == 1) claveCod = codificarMetodo1_string(bits, nUser);
+                else claveCod = codificarMetodo2_string(bits, nUser);
+
                 string claveBin = convertirBitsABytes_aplicacion(claveCod);
 
                 ofstream out("C:/Users/SYSTICOM SOPORTE/Documents/UNIVERSIDAD/INFO 2/QT/Practica3/Practica3/usuarios.txt", ios::app);
-                out << cedula << "," << claveBin << "," << saldo << "\n";
+                out << cedula << "," << claveBin << "," << saldo
+                    << "," << nUser << "," << metodoUser << "\n";  // <--- GUARDA TODA LA INFO DEL USUARIO
                 out.close();
 
                 cout << "Usuario registrado correctamente.\n";
                 main();
-            } else {
-                cout << "Regresando al inicio...\n\n";
-                main(); // vuelve a ejecutar el programa
             }
         }
+
         else if (modo == 2) {
-            // ===== USUARIO =====
+            // USUARIO
             cout << "Ingrese cedula: ";
             string cedula; getline(cin, cedula);
             cout << "Ingrese clave: ";
@@ -635,7 +489,11 @@ int main() {
                     // Decodificar clave
                     string bits;
                     for (unsigned char c : claveF) convertirByteABits_aplicacion(c, bits);
-                    string claveDecod = decodificarMetodo1_aplicacion(bits, n);
+
+                    string claveDecod;
+                    if (metodo == 1) claveDecod = decodificarMetodo1_aplicacion(bits, n);
+                    else claveDecod = decodificarMetodo2_aplicacion(bits, n);
+
                     string claveReal = convertirBitsABytes_aplicacion(claveDecod);
 
                     if (claveReal == clave) {
@@ -674,16 +532,15 @@ int main() {
             for (auto &l : lineas) out << l << "\n";
             out.close();
 
-            if (!encontrado) cout << "Usuario, clave o semilla incorrecta.\n";
+            if (!encontrado) cout << "Usuario o clave incorrecta.\n";
         }
         else {
-            cout << "Opción inválida.\n";
+            cout << "Opción incorrecta.\n";
         }
+
     }
     catch (exception &e) {
         cerr << "Error: " << e.what() << "\n";
     }
 }
-
-
 

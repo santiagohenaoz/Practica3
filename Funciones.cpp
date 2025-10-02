@@ -44,13 +44,13 @@ void encodeMethod1_fixed(const char *origBits, char *outBits, int totalBits, int
             // invertir todos
             for (int i = 0; i < n; ++i) curOut[i] = (curOrig[i] == '0') ? '1' : '0';
         } else if (ceros > unos) {
-            // "invertir cada 2 bits" -> invertir cada segundo bit: índices 1,3,5,...
+            // "invertir cada 2 bits" -> invertir cada segundo bit: indices 1,3,5,...
             for (int i = 0; i < n; ++i) {
                 if (i % 2 == 1) curOut[i] = (curOrig[i] == '0') ? '1' : '0';
                 else curOut[i] = curOrig[i];
             }
         } else { // unos > ceros
-            // "invertir cada 3 bits" -> invertir cada tercer bit: índices 2,5,8,...
+            // "invertir cada 3 bits" -> invertir cada tercer bit: indices 2,5,8,...
             for (int i = 0; i < n; ++i) {
                 if (i % 3 == 2) curOut[i] = (curOrig[i] == '0') ? '1' : '0';
                 else curOut[i] = curOrig[i];
@@ -62,7 +62,7 @@ void encodeMethod1_fixed(const char *origBits, char *outBits, int totalBits, int
 
 
 
-// Método 2 (use orig -> out para mantenerlo claro)
+// Metodo 2 (use orig -> out para mantenerlo claro)
 void encodeMethod2_fixed(const char *origBits, char *outBits, int totalBits, int n) {
     int bloques = totalBits / n;
     for (int b = 0; b < bloques; ++b) {
@@ -72,8 +72,8 @@ void encodeMethod2_fixed(const char *origBits, char *outBits, int totalBits, int
             if (n == 1) curOut[0] = curOrig[0];
             continue;
         }
-        // rotación según enunciado: primer bit codificado = último del original,
-        // segundo codificado = primero original, etc.
+        // rotacion segun enunciado: primer bit codificado = ultimo del original,
+        // segundo codificado = primero original y asi.
         curOut[0] = curOrig[n - 1];
         for (int i = 1; i < n; ++i) curOut[i] = curOrig[i - 1];
     }
@@ -89,7 +89,7 @@ void byteToBits(unsigned char byte, string &bits) {
         bits.push_back(((byte >> i) & 1) ? '1' : '0');
 }
 
-// Método 1 : siempre lee el bloque anterior del ORIGINAL
+// Metodo 1 : siempre lee el bloque anterior del ORIGINAL
 string encodeMethod1_fixed(const string &bits, int n) {
     int totalBits = (int)bits.size();
     int bloques = totalBits / n;
@@ -138,7 +138,7 @@ string encodeMethod1_fixed(const string &bits, int n) {
     return out;
 }
 
-// Método 2 (rotación por bloque)
+// Método 2 (rotacion por bloque)
 string encodeMethod2(const string &bits, int n) {
     int totalBits = (int)bits.size();
     int bloques = totalBits / n;
@@ -160,7 +160,7 @@ string encodeMethod2(const string &bits, int n) {
 //----- PROGRAMA DECODIFICADOR CON CHAR ---------------------------------------
 
 
-// Función auxiliar: pasa un byte a bits
+// Funcion auxiliar: pasa un byte a bits
 void byteToBits_dec(unsigned char byte, char *bitArray) {
     for (int i = 7; i >= 0; --i) {
         bitArray[7 - i] = ((byte >> i) & 1) ? '1' : '0';
@@ -177,7 +177,7 @@ unsigned char bitsToByte_dec(const char *bitArray) {
 }
 
 // ----------------------
-// Métodos inversos de decodificación
+// Metodos inversos de decodificacion
 void metodo1_decodificar(const char *encodedBits, char *decodedBits, int totalBits, int n) {
     int bloques = totalBits / n;
 
@@ -186,7 +186,7 @@ void metodo1_decodificar(const char *encodedBits, char *decodedBits, int totalBi
         char *curDec = decodedBits + b * n;
 
         if (b == 0) {
-            // Primer bloque: en codificación se invirtió todo → aquí invertimos todo otra vez
+            // Primer bloque: en codificaci0n se invirti0 todo → aqui invertimos todo otra vez
             for (int i = 0; i < n; ++i)
                 curDec[i] = (curEnc[i] == '0') ? '1' : '0';
             continue;
@@ -201,17 +201,17 @@ void metodo1_decodificar(const char *encodedBits, char *decodedBits, int totalBi
         }
 
         if (unos == ceros) {
-            // Se invirtió todo → invertimos todo otra vez
+            // Se invirtio todo → invertimos todo otra vez
             for (int i = 0; i < n; ++i)
                 curDec[i] = (curEnc[i] == '0') ? '1' : '0';
         } else if (ceros > unos) {
-            // Se invirtieron los índices 1,3,5... → invertimos otra vez esos índices
+            // Se invirtieron los indices 1,3,5... → invertimos otra vez esos indices
             for (int i = 0; i < n; ++i) {
                 if (i % 2 == 1) curDec[i] = (curEnc[i] == '0') ? '1' : '0';
                 else curDec[i] = curEnc[i];
             }
         } else { // unos > ceros
-            // Se invirtieron los índices 2,5,8... → invertimos otra vez esos índices
+            // Se invirtieron los indices 2,5,8... → invertimos otra vez esos indices
             for (int i = 0; i < n; ++i) {
                 if (i % 3 == 2) curDec[i] = (curEnc[i] == '0') ? '1' : '0';
                 else curDec[i] = curEnc[i];
@@ -223,7 +223,7 @@ void metodo1_decodificar(const char *encodedBits, char *decodedBits, int totalBi
 
 void metodo2_decodificar(const char *entradaBits, char *salidaBits, int totalBits, int n) {
     for (int i = 0; i < totalBits; i += n) {
-        // inverso del método 2: rotar a la izquierda
+        // inverso del metodo 2: rotar a la izquierda
         for (int j = 0; j < n; ++j) {
             salidaBits[i + j] = entradaBits[i + ((j + 1) % n)];
         }
@@ -293,7 +293,7 @@ string decodificarMetodo1_string(const string &bits, int n) {
     return out;
 }
 
-// Método 2: decodificación con string (rotación inversa)
+// Metodo 2: decodificacion con string (rotacion inversa)
 string decodificarMetodo2_string(const string &bits, int n) {
     int totalBits = (int)bits.size();
     int bloques = totalBits / n;
@@ -306,7 +306,7 @@ string decodificarMetodo2_string(const string &bits, int n) {
             out[start] = bits[start];
             continue;
         }
-        // la codificación rotaba a la derecha → para decodificar rotamos a la izquierda
+        // la codificacion rotaba a la derecha → para decodificar rotamos a la izquierda
         for (int i = 0; i < n - 1; ++i)
             out[start + i] = bits[start + i + 1];
         out[start + n - 1] = bits[start];
@@ -333,7 +333,27 @@ string convertirBitsABytes_string(const string &bits) {
 //---------------APLICACION-----------------------------------------------------------------------
 
 
-string encodeMethod1_aplicacion(const string &bits, int n) {
+void convertirByteABits_aplicacion(unsigned char byte, string &bits) {
+    for (int i = 7; i >= 0; --i)
+        bits.push_back(((byte >> i) & 1) ? '1' : '0');
+}
+
+string convertirBitsABytes_aplicacion(const string &bits) {
+    int outBytes = bits.size() / 8;
+    string outBuffer;
+    outBuffer.reserve(outBytes);
+
+    for (int i = 0; i < outBytes; i++) {
+        unsigned char b = 0;
+        for (int j = 0; j < 8; j++) {
+            b = (b << 1) | (bits[i * 8 + j] - '0');
+        }
+        outBuffer.push_back(static_cast<char>(b));
+    }
+    return outBuffer;
+}
+
+string codificarMetodo1_string(const string &bits, int n) {
     int totalBits = (int)bits.size();
     int bloques = totalBits / n;
     if (bloques == 0) return string();
@@ -344,12 +364,10 @@ string encodeMethod1_aplicacion(const string &bits, int n) {
     for (int b = 0; b < bloques; ++b) {
         int startCur = b * n;
         if (b == 0) {
-            // primer bloque: invertir todos
             for (int i = 0; i < n; ++i)
                 out[startCur + i] = (bits[startCur + i] == '0') ? '1' : '0';
             continue;
         }
-
         int startPrev = (b - 1) * n;
         int unos = 0, ceros = 0;
         for (int i = 0; i < n; ++i)
@@ -358,36 +376,64 @@ string encodeMethod1_aplicacion(const string &bits, int n) {
         if (unos == ceros) {
             for (int i = 0; i < n; ++i)
                 out[startCur + i] = (bits[startCur + i] == '0') ? '1' : '0';
-        }
-        else if (ceros > unos) {
-            // invertir cada 2 bits -> posiciones impares
-            for (int i = 0; i < n; ++i) {
-                if (i % 2 == 1)
-                    out[startCur + i] = (bits[startCur + i] == '0') ? '1' : '0';
-                else
-                    out[startCur + i] = bits[startCur + i];
-            }
-        }
-        else { // unos > ceros
-            // invertir cada 3 bits -> posiciones 2,5,8,... (i%3==2)
-            for (int i = 0; i < n; ++i) {
-                if (i % 3 == 2)
-                    out[startCur + i] = (bits[startCur + i] == '0') ? '1' : '0';
-                else
-                    out[startCur + i] = bits[startCur + i];
-            }
+        } else if (ceros > unos) {
+            for (int i = 0; i < n; ++i)
+                if (i % 2 == 1) out[startCur + i] = (bits[startCur + i] == '0') ? '1' : '0';
+                else out[startCur + i] = bits[startCur + i];
+        } else {
+            for (int i = 0; i < n; ++i)
+                if (i % 3 == 2) out[startCur + i] = (bits[startCur + i] == '0') ? '1' : '0';
+                else out[startCur + i] = bits[startCur + i];
         }
     }
     return out;
 }
 
 
+// Decodificar Metodo 1
+string decodificarMetodo1_aplicacion(const string &bits, int n) {
+    int totalBits = (int)bits.size();
+    int bloques = totalBits / n;
+    if (bloques == 0) return string();
 
-string encodeMethod2_aplicacion(const string &bits, int n) {
+    string out;
+    out.resize(bloques * n);
+
+    for (int b = 0; b < bloques; ++b) {
+        int startCur = b * n;
+        if (b == 0) {
+            for (int i = 0; i < n; ++i)
+                out[startCur + i] = (bits[startCur + i] == '0') ? '1' : '0';
+            continue;
+        }
+        int startPrev = (b - 1) * n;
+        int unos = 0, ceros = 0;
+        for (int i = 0; i < n; ++i)
+            (out[startPrev + i] == '1') ? ++unos : ++ceros;
+
+        if (unos == ceros) {
+            for (int i = 0; i < n; ++i)
+                out[startCur + i] = (bits[startCur + i] == '0') ? '1' : '0';
+        } else if (ceros > unos) {
+            for (int i = 0; i < n; ++i)
+                if (i % 2 == 1) out[startCur + i] = (bits[startCur + i] == '0') ? '1' : '0';
+                else out[startCur + i] = bits[startCur + i];
+        } else {
+            for (int i = 0; i < n; ++i)
+                if (i % 3 == 2) out[startCur + i] = (bits[startCur + i] == '0') ? '1' : '0';
+                else out[startCur + i] = bits[startCur + i];
+        }
+    }
+    return out;
+}
+
+// Codificar Metodo 2
+string codificarMetodo2_string(const string &bits, int n) {
     int totalBits = (int)bits.size();
     int bloques = totalBits / n;
     string out;
     out.resize(bloques * n);
+
     for (int b = 0; b < bloques; ++b) {
         int start = b * n;
         if (n == 1) { out[start] = bits[start]; continue; }
@@ -397,3 +443,39 @@ string encodeMethod2_aplicacion(const string &bits, int n) {
     }
     return out;
 }
+
+// Decodificar Metodo 2
+string decodificarMetodo2_aplicacion(const string &bits, int n) {
+    int totalBits = (int)bits.size();
+    int bloques = totalBits / n;
+    string out;
+    out.resize(bloques * n);
+
+    for (int b = 0; b < bloques; ++b) {
+        int start = b * n;
+        if (n == 1) { out[start] = bits[start]; continue; }
+        for (int i = 0; i < n - 1; ++i)
+            out[start + i] = bits[start + i + 1];
+        out[start + n - 1] = bits[start];
+    }
+    return out;
+}
+
+//sistema de archivos
+string leerArchivoBinario(const string &ruta) {
+    ifstream in(ruta, ios::binary);
+    if (!in) throw runtime_error("No se pudo abrir archivo: " + ruta);
+    in.seekg(0, ios::end);
+    streamsize sz = in.tellg();
+    in.seekg(0, ios::beg);
+    string buffer((size_t)sz, '\0');
+    in.read(&buffer[0], sz);
+    return buffer;
+}
+
+void guardarArchivoBinario(const string &ruta, const string &data) {
+    ofstream out(ruta, ios::binary);
+    if (!out) throw runtime_error("No se pudo guardar archivo: " + ruta);
+    out.write(data.data(), data.size());
+}
+
