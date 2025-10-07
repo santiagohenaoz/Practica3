@@ -11,7 +11,7 @@ using namespace std;
 
 
 
-//------------ EJERCICIOS DE CODIFICACION CON CHAR------------------------------
+//------------ FUNCIONES DE CODIFICACION CON CHAR------------------------------
 
 void byteToBits(unsigned char byte, char *bits);
 
@@ -21,7 +21,7 @@ void encodeMethod2_fixed(const char *origBits, char *outBits, int totalBits, int
 
 
 
-//------------ EJERCICIOS DE CODIFICACION CON STRING------------------------------
+//------------ FUNCIONES DE CODIFICACION CON STRING------------------------------
 
 void byteToBits(unsigned char byte, string &bits);
 
@@ -32,7 +32,7 @@ string encodeMethod2(const string &bits, int n);
 
 
 
-//----- PROGRAMA DECODIFICADOR CON CHAR ---------------------------------------
+//----- FUNCIONES DE  DECODIFICADOR CON CHAR ---------------------------------------
 
 
 void byteToBits_dec(unsigned char byte, char *bitArray);
@@ -45,7 +45,7 @@ void metodo2_decodificar(const char *entradaBits, char *salidaBits, int totalBit
 
 
 
-//----- PROGRAMA DECODIFICADOR CON STRING ---------------------------------------
+//----- FUNCIONES DE  DECODIFICADOR CON STRING ---------------------------------------
 void byteToBits_dec(unsigned char byte, string &bits);
 
 unsigned char bitsToByte_dec(const string &bits, int start);
@@ -61,7 +61,7 @@ string convertirBitsABytes_string(const string &bits);
 
 
 
-//---------------APLICACION-----------------------------------------------------------------------
+//---------------FUNCIONES CLONADAS-----------------------------------------------------
 
 
 void convertirByteABits_aplicacion(unsigned char byte, string &bits);

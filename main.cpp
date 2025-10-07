@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <cstring>
 #include <sstream>
 #include <stdexcept>
 #include "Declaraciones.h"
@@ -19,8 +20,9 @@ int main() {
         cout << "2. Codificacion con STRING\n";
         cout << "3. Decodificacion con CHAR\n";
         cout << "4. Decodificacion con STRING\n";
-        cout << "5. Aplicacion (Administrador / Usuario)\n";
-        cout << "6. Salir\n";
+        cout << "5. Aplicacion STRING (Administrador / Usuario)\n";
+        cout << "6. Aplicacion CHAR (Administrador / Usuario)\n";
+        cout << "7. Salir\n";
         cout << "-------------------------\n";
         cout << "Seleccione una opcion: ";
         cin >> opcionPrincipal;
@@ -682,7 +684,319 @@ int main() {
 
             break;
         }
-        case 6:
+
+        case 6:{
+
+            cout << "\n== MODO APLICACION ==\n";
+
+            try {
+                int modo = 0;
+                char continuar = 's';
+
+                do {
+                    cout << "Seleccione modo:\n"
+                         << "1. Super Administrador\n"
+                         << "2. Administrador\n"
+                         << "3. Usuario\n"
+                         << "4. Salir al menu principal\n> ";
+                    cin >> modo;
+                    cin.ignore();
+
+
+                    // MODO SUPER ADMINISTRADOR
+
+                    if (modo == 1) {
+                        try {
+                            char claveInput[100];
+                            cout << "Ingrese clave del SUPER ADMIN: ";
+                            cin.getline(claveInput, 100);
+                            if (strlen(claveInput) == 0) throw runtime_error("La clave no puede estar vacia.");
+
+                            ifstream test("C:/Users/SYSTICOM SOPORTE/Documents/UNIVERSIDAD/INFO 2/QT/Practica3/Practica3/SUPERADMIN.txt", ios::binary);
+                            if (!test.is_open()) throw runtime_error("Archivo SUPERADMIN.txt no encontrado.");
+                            test.close();
+
+                            string superCod = leerArchivoBinario("C:/Users/SYSTICOM SOPORTE/Documents/UNIVERSIDAD/INFO 2/QT/Practica3/Practica3/SUPERADMIN.txt");
+                            if (superCod.empty()) throw runtime_error("El archivo SUPERADMIN.txt esta vacio.");
+
+                            string bits;
+                            for (unsigned char c : superCod)
+                                convertirByteABits_aplicacion(c, bits);
+
+                            bool acceso = false;
+                            int nEncontrado = 0, metodoEncontrado = 0;
+                            string claveReal;
+
+                            for (int n = 1; n <= 7 && !acceso; ++n) {
+                                for (int metodo = 1; metodo <= 2 && !acceso; ++metodo) {
+                                    string decod = (metodo == 1)
+                                    ? decodificarMetodo1_aplicacion(bits, n)
+                                    : decodificarMetodo2_aplicacion(bits, n);
+                                    string claveRealTmp = convertirBitsABytes_aplicacion(decod);
+                                    if (strcmp(claveInput, claveRealTmp.c_str()) == 0) {
+                                        acceso = true;
+                                        nEncontrado = n;
+                                        metodoEncontrado = metodo;
+                                        claveReal = claveRealTmp;
+                                    }
+                                }
+                            }
+
+                            if (!acceso) throw runtime_error("Clave incorrecta o no coincide con el archivo.");
+
+                            cout << "Acceso concedido como SUPER ADMIN.\n";
+                            cout << "Desea registrar un nuevo ADMIN? (s/n): ";
+                            char op; cin >> op; cin.ignore();
+
+                            if (op == 's' || op == 'S') {
+                                char cedula[50], clave[50];
+                                cout << "Ingrese cedula del nuevo admin: ";
+                                cin.getline(cedula, 50);
+                                cout << "Ingrese clave: ";
+                                cin.getline(clave, 50);
+
+                                if (strlen(cedula) == 0 || strlen(clave) == 0)
+                                    throw runtime_error("Ni la cedula ni la clave pueden estar vacias.");
+
+                                int nAdmin, metodoAdmin;
+                                cout << "Ingrese semilla (n) para este admin: ";
+                                cin >> nAdmin; cin.ignore();
+                                cout << "Ingrese metodo (1 o 2): ";
+                                cin >> metodoAdmin; cin.ignore();
+
+                                if (nAdmin < 1 || nAdmin > 7) throw runtime_error("Semilla fuera de rango (1-7).");
+                                if (metodoAdmin != 1 && metodoAdmin != 2) throw runtime_error("Método inválido (solo 1 o 2).");
+
+                                string bitsAdmin;
+                                for (int i = 0; clave[i] != '\0'; ++i)
+                                    convertirByteABits_aplicacion((unsigned char)clave[i], bitsAdmin);
+
+                                string cod = (metodoAdmin == 1)
+                                                 ? codificarMetodo1_string(bitsAdmin, nAdmin)
+                                                 : codificarMetodo2_string(bitsAdmin, nAdmin);
+
+                                string claveCod = convertirBitsABytes_aplicacion(cod);
+
+                                ofstream out("C:/Users/SYSTICOM SOPORTE/Documents/UNIVERSIDAD/INFO 2/QT/Practica3/Practica3/administradores.txt", ios::app);
+                                if (!out.is_open()) throw runtime_error("No se pudo abrir administradores.txt para escribir.");
+                                out << cedula << "," << claveCod << "," << nAdmin << "," << metodoAdmin << "\n";
+                                out.close();
+
+                                cout << "Administrador registrado exitosamente con n=" << nAdmin
+                                     << " y metodo=" << metodoAdmin << ".\n";
+                            }
+                        } catch (const exception &e) {
+                            cerr << "Error en modo SUPER ADMIN: " << e.what() << "\n";
+                        }
+                    }
+
+
+                    // MODO ADMINISTRADOR
+
+                    else if (modo == 2) {
+                        try {
+                            char cedulaAdmin[50], clave[50];
+                            cout << "Ingrese cedula de admin: ";
+                            cin.getline(cedulaAdmin, 50);
+                            cout << "Ingrese clave: ";
+                            cin.getline(clave, 50);
+                            if (strlen(cedulaAdmin) == 0 || strlen(clave) == 0)
+                                throw runtime_error("Debe ingresar cedula y clave.");
+
+                            ifstream in("C:/Users/SYSTICOM SOPORTE/Documents/UNIVERSIDAD/INFO 2/QT/Practica3/Practica3/administradores.txt");
+                            if (!in) throw runtime_error("No se encontro administradores.txt");
+
+                            bool valido = false;
+                            int nAdmin = 0, metodoAdmin = 0;
+                            string linea;
+                            while (getline(in, linea)) {
+                                stringstream ss(linea);
+                                string cedulaF, claveF, nF, metodoF;
+                                getline(ss, cedulaF, ',');
+                                getline(ss, claveF, ',');
+                                getline(ss, nF, ',');
+                                getline(ss, metodoF, ',');
+
+                                if (cedulaF == cedulaAdmin) {
+                                    nAdmin = stoi(nF);
+                                    metodoAdmin = stoi(metodoF);
+
+                                    string bits;
+                                    for (unsigned char c : claveF)
+                                        convertirByteABits_aplicacion(c, bits);
+
+                                    string claveDec = (metodoAdmin == 1)
+                                                          ? decodificarMetodo1_aplicacion(bits, nAdmin)
+                                                          : decodificarMetodo2_aplicacion(bits, nAdmin);
+
+                                    string claveReal = convertirBitsABytes_aplicacion(claveDec);
+
+                                    if (strcmp(claveReal.c_str(), clave) == 0)
+                                        valido = true;
+                                    break;
+                                }
+                            }
+                            in.close();
+
+                            if (!valido) throw runtime_error("Admin no autorizado o clave incorrecta.");
+
+                            cout << "Acceso como ADMINISTRADOR.\n";
+                            cout << "Desea registrar un nuevo usuario? (s/n): ";
+                            char op; cin >> op; cin.ignore();
+
+                            if (op == 's' || op == 'S') {
+                                char cedula[50], claveU[50], saldo[20];
+                                cout << "Ingrese cedula del usuario: ";
+                                cin.getline(cedula, 50);
+                                cout << "Ingrese clave: ";
+                                cin.getline(claveU, 50);
+                                cout << "Ingrese saldo inicial: ";
+                                cin.getline(saldo, 20);
+
+                                if (strlen(cedula) == 0 || strlen(claveU) == 0 || strlen(saldo) == 0)
+                                    throw runtime_error("Campos vacios al registrar usuario.");
+
+                                int nUser, metodoUser;
+                                cout << "Ingrese semilla (n) para el usuario: ";
+                                cin >> nUser; cin.ignore();
+                                cout << "Ingrese metodo (1 o 2): ";
+                                cin >> metodoUser; cin.ignore();
+
+                                if (nUser < 1 || nUser > 7) throw runtime_error("Semilla fuera de rango (1-7).");
+                                if (metodoUser != 1 && metodoUser != 2) throw runtime_error("Método inválido (solo 1 o 2).");
+
+                                string bits;
+                                for (int i = 0; claveU[i] != '\0'; ++i)
+                                    convertirByteABits_aplicacion((unsigned char)claveU[i], bits);
+
+                                string cod = (metodoUser == 1)
+                                                 ? codificarMetodo1_string(bits, nUser)
+                                                 : codificarMetodo2_string(bits, nUser);
+
+                                string claveCod = convertirBitsABytes_aplicacion(cod);
+
+                                ofstream out("C:/Users/SYSTICOM SOPORTE/Documents/UNIVERSIDAD/INFO 2/QT/Practica3/Practica3/usuarios.txt", ios::app);
+                                if (!out.is_open()) throw runtime_error("No se pudo abrir usuarios.txt para escribir.");
+                                out << cedula << "," << claveCod << "," << saldo
+                                    << "," << nUser << "," << metodoUser << "\n";
+                                out.close();
+
+                                cout << "Usuario registrado correctamente.\n";
+                            }
+                        } catch (const exception &e) {
+                            cerr << "Error en modo ADMIN: " << e.what() << "\n";
+                        }
+                    }
+
+
+                    // MODO USUARIO
+
+                    else if (modo == 3) {
+                        try {
+                            char cedula[50], clave[50];
+                            cout << "Ingrese cedula: ";
+                            cin.getline(cedula, 50);
+                            cout << "Ingrese clave: ";
+                            cin.getline(clave, 50);
+                            if (strlen(cedula) == 0 || strlen(clave) == 0)
+                                throw runtime_error("Debe ingresar cedula y clave.");
+
+                            ifstream in("C:/Users/SYSTICOM SOPORTE/Documents/UNIVERSIDAD/INFO 2/QT/Practica3/Practica3/usuarios.txt");
+                            if (!in) throw runtime_error("No existe usuarios.txt");
+
+                            bool encontrado = false;
+                            string linea;
+                            while (getline(in, linea)) {
+                                stringstream ss(linea);
+                                string cedulaF, claveF, saldoF, nF, metodoF;
+                                getline(ss, cedulaF, ',');
+                                getline(ss, claveF, ',');
+                                getline(ss, saldoF, ',');
+                                getline(ss, nF, ',');
+                                getline(ss, metodoF, ',');
+
+                                if (cedulaF == cedula) {
+                                    int nUser = stoi(nF);
+                                    int metodoUser = stoi(metodoF);
+
+                                    string bits;
+                                    for (unsigned char c : claveF)
+                                        convertirByteABits_aplicacion(c, bits);
+
+                                    string claveDec = (metodoUser == 1)
+                                                          ? decodificarMetodo1_aplicacion(bits, nUser)
+                                                          : decodificarMetodo2_aplicacion(bits, nUser);
+
+                                    string claveReal = convertirBitsABytes_aplicacion(claveDec);
+
+                                    if (strcmp(claveReal.c_str(), clave) == 0) {
+                                        encontrado = true;
+                                        int saldo = stoi(saldoF);
+                                        int opcion;
+                                        do {
+                                            cout << "\n1. Consultar saldo\n2. Retirar dinero\n3. Salir\n> ";
+                                            cin >> opcion;
+
+                                            if (cin.fail()) {
+                                                cin.clear();
+                                                cin.ignore(1000, '\n');
+                                                throw runtime_error("Entrada no valida. Ingrese un numero.");
+                                            }
+
+                                            if (opcion == 1) {
+                                                saldo -= 1000;
+                                                cout << "Saldo actual: " << saldo << "\n";
+                                            } else if (opcion == 2) {
+                                                int retiro;
+                                                cout << "Monto a retirar: ";
+                                                cin >> retiro;
+                                                if (cin.fail() || retiro <= 0)
+                                                    throw runtime_error("Monto invalido.");
+                                                if (retiro + 1000 <= saldo) {
+                                                    saldo -= retiro + 1000;
+                                                    cout << "Retiro exitoso. Nuevo saldo: " << saldo << "\n";
+                                                } else {
+                                                    cout << "Fondos insuficientes.\n";
+                                                }
+                                            }
+                                        } while (opcion != 3);
+                                    }
+                                }
+                            }
+
+                            in.close();
+                            if (!encontrado) throw runtime_error("Usuario o clave incorrecta.");
+                        } catch (const exception &e) {
+                            cerr << "Error en modo USUARIO: " << e.what() << "\n";
+                        }
+                    }
+
+                    else if (modo == 4) {
+                        cout << "Regresando al menu principal...\n";
+                        break;
+                    } else {
+                        cout << "Opción invalida.\n";
+                    }
+
+                    cout << "\nDesea volver al menu de modos? (s/n): ";
+                    cin >> continuar;
+                    cin.ignore();
+
+                } while (continuar == 's' || continuar == 'S');
+
+            } catch (const exception &e) {
+                cerr << "Error general: " << e.what() << "\n";
+            }
+
+
+
+
+
+            break;
+        }
+
+
+        case 7:
             cout << "Saliendo del programa...\n";
             return 0;
 

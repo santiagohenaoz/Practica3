@@ -9,7 +9,7 @@
 using namespace std;
 
 
-//------------ EJERCICIOS DE CODIFICACION CON CHAR------------------------------
+//------------ FUNCIONES DE CODIFICACION CON CHAR------------------------------
 
 // Convierte un byte en 8 chars '0'/'1'
 void byteToBits(unsigned char byte, char *bits) {
@@ -81,7 +81,7 @@ void encodeMethod2_fixed(const char *origBits, char *outBits, int totalBits, int
 
 
 
-//------------ EJERCICIOS DE CODIFICACION CON STRING------------------------------
+//------------ FUNCIONES DE CODIFICACION CON STRING------------------------------
 
 // Convierte un byte en 8 caracteres '0'/'1' y los agrega a un string
 void byteToBits(unsigned char byte, string &bits) {
@@ -147,7 +147,7 @@ string encodeMethod2(const string &bits, int n) {
 
 
 
-//----- PROGRAMA DECODIFICADOR CON CHAR ---------------------------------------
+//----- FUNCIONES DE DECODIFICADOR CON CHAR ---------------------------------------
 
 
 // Funcion auxiliar: pasa un byte a bits
@@ -223,7 +223,7 @@ void metodo2_decodificar(const char *entradaBits, char *salidaBits, int totalBit
 
 
 
-//----- PROGRAMA DECODIFICADOR CON STRING ---------------------------------------
+//----- FUNCIONES DE DECODIFICADOR CON STRING ---------------------------------------
 
 
 // Convierte un byte en 8 caracteres '0'/'1'
@@ -312,7 +312,7 @@ string convertirBitsABytes_string(const string &bits) {
 }
 
 
-//---------------APLICACION-----------------------------------------------------------------------
+//----------FUNCIONES CLONADAS DE LOS METODOS--------------------------------
 
 //conertimos 1 byte a cadena de caracteres
 void convertirByteABits_aplicacion(unsigned char byte, string &bits) {
