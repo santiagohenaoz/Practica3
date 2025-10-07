@@ -1,9 +1,9 @@
-#include <fstream>
+
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <iostream>
+
 
 
 using namespace std;
@@ -83,25 +83,24 @@ void encodeMethod2_fixed(const char *origBits, char *outBits, int totalBits, int
 
 //------------ EJERCICIOS DE CODIFICACION CON STRING------------------------------
 
-// Convierte un byte en 8 caracteres '0'/'1' y los agrega al string
+// Convierte un byte en 8 caracteres '0'/'1' y los agrega a un string
 void byteToBits(unsigned char byte, string &bits) {
     for (int i = 7; i >= 0; --i)
-        bits.push_back(((byte >> i) & 1) ? '1' : '0');
+        bits += ((byte >> i) & 1) ? '1' : '0';
 }
 
-// Metodo 1 : siempre lee el bloque anterior del ORIGINAL
+// Método 1 - Codificación por bloques
 string encodeMethod1_fixed(const string &bits, int n) {
-    int totalBits = (int)bits.size();
+    int totalBits = bits.size();
     int bloques = totalBits / n;
-    if (bloques == 0) return string();
+    if (bloques == 0) return "";
 
-    string out;
-    out.resize(bloques * n);
+    string out(bloques * n, '0');
 
     for (int b = 0; b < bloques; ++b) {
         int startCur = b * n;
+
         if (b == 0) {
-            // primer bloque: invertir todos
             for (int i = 0; i < n; ++i)
                 out[startCur + i] = (bits[startCur + i] == '0') ? '1' : '0';
             continue;
@@ -117,37 +116,28 @@ string encodeMethod1_fixed(const string &bits, int n) {
                 out[startCur + i] = (bits[startCur + i] == '0') ? '1' : '0';
         }
         else if (ceros > unos) {
-            // invertir cada 2 bits -> posiciones impares
-            for (int i = 0; i < n; ++i) {
-                if (i % 2 == 1)
-                    out[startCur + i] = (bits[startCur + i] == '0') ? '1' : '0';
-                else
-                    out[startCur + i] = bits[startCur + i];
-            }
+            for (int i = 0; i < n; ++i)
+                out[startCur + i] = (i % 2 == 1) ? ((bits[startCur + i] == '0') ? '1' : '0') : bits[startCur + i];
         }
-        else { // unos > ceros
-            // invertir cada 3 bits -> posiciones 2,5,8,... (i%3==2)
-            for (int i = 0; i < n; ++i) {
-                if (i % 3 == 2)
-                    out[startCur + i] = (bits[startCur + i] == '0') ? '1' : '0';
-                else
-                    out[startCur + i] = bits[startCur + i];
-            }
+        else {
+            for (int i = 0; i < n; ++i)
+                out[startCur + i] = (i % 3 == 2) ? ((bits[startCur + i] == '0') ? '1' : '0') : bits[startCur + i];
         }
     }
     return out;
 }
 
-// Método 2 (rotacion por bloque)
+// Método 2 - Rotación simple
 string encodeMethod2(const string &bits, int n) {
-    int totalBits = (int)bits.size();
+    int totalBits = bits.size();
     int bloques = totalBits / n;
-    string out;
-    out.resize(bloques * n);
+    string out(bloques * n, '0');
+
     for (int b = 0; b < bloques; ++b) {
         int start = b * n;
         if (n == 1) { out[start] = bits[start]; continue; }
-        out[start + 0] = bits[start + n - 1];
+
+        out[start] = bits[start + n - 1];
         for (int i = 1; i < n; ++i)
             out[start + i] = bits[start + i - 1];
     }
@@ -236,77 +226,69 @@ void metodo2_decodificar(const char *entradaBits, char *salidaBits, int totalBit
 //----- PROGRAMA DECODIFICADOR CON STRING ---------------------------------------
 
 
-// Convierte un byte en 8 caracteres '0'/'1' y los agrega al string
-void convertirByteABits_string(unsigned char byte, string &bits) {
+// Convierte un byte en 8 caracteres '0'/'1'
+void byteToBits_dec(unsigned char byte, string &bits) {
     for (int i = 7; i >= 0; --i)
-        bits.push_back(((byte >> i) & 1) ? '1' : '0');
+        bits += ((byte >> i) & 1) ? '1' : '0';
 }
 
-// Método 1: decodificación con string
-string decodificarMetodo1_string(const string &bits, int n) {
+// Convierte 8 caracteres '0'/'1' en un byte
+unsigned char bitsToByte_dec(const string &bits, int start) {
+    unsigned char b = 0;
+    for (int i = 0; i < 8; ++i)
+        b = (b << 1) | (bits[start + i] - '0');
+    return b;
+}
+
+// Decodificar método 1
+string decodeMethod1(const string &bits, int n) {
     int totalBits = (int)bits.size();
     int bloques = totalBits / n;
     if (bloques == 0) return string();
 
-    string out;
-    out.resize(bloques * n);
+    string out(bloques * n, '0');
 
     for (int b = 0; b < bloques; ++b) {
         int startCur = b * n;
         if (b == 0) {
-            // primer bloque: fue invertido totalmente → lo invertimos otra vez
+            // primer bloque: invertir todos
             for (int i = 0; i < n; ++i)
                 out[startCur + i] = (bits[startCur + i] == '0') ? '1' : '0';
             continue;
         }
 
-        // contar unos y ceros en el bloque anterior ya decodificado
         int startPrev = (b - 1) * n;
         int unos = 0, ceros = 0;
         for (int i = 0; i < n; ++i)
             (out[startPrev + i] == '1') ? ++unos : ++ceros;
 
         if (unos == ceros) {
-            // todo se invirtió → invertimos todo otra vez
             for (int i = 0; i < n; ++i)
                 out[startCur + i] = (bits[startCur + i] == '0') ? '1' : '0';
-        }
-        else if (ceros > unos) {
-            // se invirtieron posiciones impares (1,3,5,...) → invertimos otra vez esas
-            for (int i = 0; i < n; ++i) {
-                if (i % 2 == 1)
-                    out[startCur + i] = (bits[startCur + i] == '0') ? '1' : '0';
-                else
-                    out[startCur + i] = bits[startCur + i];
-            }
-        }
-        else { // unos > ceros
-            // se invirtieron posiciones 2,5,8... → invertimos otra vez esas
-            for (int i = 0; i < n; ++i) {
-                if (i % 3 == 2)
-                    out[startCur + i] = (bits[startCur + i] == '0') ? '1' : '0';
-                else
-                    out[startCur + i] = bits[startCur + i];
-            }
+        } else if (ceros > unos) {
+            for (int i = 0; i < n; ++i)
+                out[startCur + i] = (i % 2 == 1)
+                                        ? ((bits[startCur + i] == '0') ? '1' : '0')
+                                        : bits[startCur + i];
+        } else {
+            for (int i = 0; i < n; ++i)
+                out[startCur + i] = (i % 3 == 2)
+                                        ? ((bits[startCur + i] == '0') ? '1' : '0')
+                                        : bits[startCur + i];
         }
     }
     return out;
 }
 
-// Metodo 2: decodificacion con string (rotacion inversa)
-string decodificarMetodo2_string(const string &bits, int n) {
+// Decodificar método 2 (rotación inversa)
+string decodeMethod2(const string &bits, int n) {
     int totalBits = (int)bits.size();
     int bloques = totalBits / n;
-    string out;
-    out.resize(bloques * n);
+    string out(bloques * n, '0');
 
     for (int b = 0; b < bloques; ++b) {
         int start = b * n;
-        if (n == 1) {
-            out[start] = bits[start];
-            continue;
-        }
-        // la codificacion rotaba a la derecha → para decodificar rotamos a la izquierda
+        if (n == 1) { out[start] = bits[start]; continue; }
         for (int i = 0; i < n - 1; ++i)
             out[start + i] = bits[start + i + 1];
         out[start + n - 1] = bits[start];
@@ -332,12 +314,14 @@ string convertirBitsABytes_string(const string &bits) {
 
 //---------------APLICACION-----------------------------------------------------------------------
 
-
+//conertimos 1 byte a cadena de caracteres
 void convertirByteABits_aplicacion(unsigned char byte, string &bits) {
     for (int i = 7; i >= 0; --i)
         bits.push_back(((byte >> i) & 1) ? '1' : '0');
 }
 
+
+// convertimos 1 cadena de caractes a ascci agrupando de 8
 string convertirBitsABytes_aplicacion(const string &bits) {
     int outBytes = bits.size() / 8;
     string outBuffer;
@@ -478,4 +462,6 @@ void guardarArchivoBinario(const string &ruta, const string &data) {
     if (!out) throw runtime_error("No se pudo guardar archivo: " + ruta);
     out.write(data.data(), data.size());
 }
+
+
 
